@@ -6,7 +6,13 @@ const onerror = require('koa-onerror')
 const bodyparser = require('koa-bodyparser')
 const logger = require('koa-logger')
 
-const users = require('./routes/users')
+const user = require('./routes/user')
+
+require('./db/mongo')
+
+const session = require('koa-generic-session')
+const redisStroe = require('koa-redis')
+const redisConfig = require('./config/db').Redis
 
 // error handler
 onerror(app)
@@ -30,8 +36,21 @@ app.use(async (ctx, next) => {
   console.log(`${ctx.method} ${ctx.url} - ${ms}ms`)
 })
 
+// session
+app.keys = ['hustmaths'];
+app.use(session({
+  cookie: {
+    path: '/',
+    httpOnly: true,
+    maxAge: 30 * 24 * 60 * 60 * 1000
+  },
+  store: redisStroe({
+    all: redisConfig
+  })
+}))
+
 // routes
-app.use(users.routes(), users.allowedMethods())
+app.use(user.routes(), user.allowedMethods())
 
 // error-handling
 app.on('error', (err, ctx) => {
