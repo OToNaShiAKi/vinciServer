@@ -1,6 +1,6 @@
 const Redis = "localhost:6379"
 
-const Mongo = "mongodb://localhost:27017/vinci"
+const Mongo = "mongodb://root:hustmathskexie@hustmaths.top:27017/vinci?authSource=admin"
 
 module.exports = {
     Redis,

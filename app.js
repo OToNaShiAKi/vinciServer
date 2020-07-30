@@ -14,6 +14,9 @@ const session = require('koa-generic-session')
 const redisStroe = require('koa-redis')
 const redisConfig = require('./config/db').Redis
 
+const cors = require('./config/cors')
+app.use(cors);
+
 // error handler
 onerror(app)
 
