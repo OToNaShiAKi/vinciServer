@@ -5,7 +5,10 @@ const RoundSchema = new Schema({
   second: Object,
   third: Object,
   forth: Object,
-  start: Date,
+  start: {
+    type: Date,
+    default: new Date(),
+  },
   end: Date,
 });
 

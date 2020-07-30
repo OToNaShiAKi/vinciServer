@@ -48,3 +48,20 @@ exports.Info = async (info) => {
     return ErrorCode.init(err);
   }
 };
+
+exports.AllRank = async (info) => {
+  try {
+    const users = await User.AllRank();
+    if (!users) return ErrorCode.RankWrong;
+    if (!users.length) return ErrorCode.NoRank;
+    else {
+      return {
+        status: 200,
+        message: "获取排行榜成功",
+        data: users,
+      };
+    }
+  } catch (err) {
+    return ErrorCode.init(err);
+  }
+};

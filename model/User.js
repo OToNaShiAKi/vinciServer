@@ -62,6 +62,10 @@ const UserSchema = new Schema({
     type: Number,
     min: 1,
   },
+  created: {
+    type: Date,
+    default: new Date(),
+  },
 });
 
 const User = model("user", UserSchema);

@@ -18,4 +18,9 @@ router.post("/info", async (ctx, next) => {
   ctx.body = result;
 });
 
+router.get("/rank", async (ctx, next) => {
+  const result = await User.AllRank();
+  ctx.body = result;
+});
+
 module.exports = router;

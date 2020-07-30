@@ -1,7 +1,9 @@
 const User = require("./../model/User");
 
 exports.FindRank = async (_id) => {
-  const users = await User.find().sort({ integral: -1 }).select("_id");
+  const users = await User.find()
+    .sort({ integral: -1, created: 1 })
+    .select("_id");
   for (let index in users) {
     if (users[index]._id.toString() == _id) return index + 1;
   }
@@ -9,7 +11,7 @@ exports.FindRank = async (_id) => {
 
 exports.FindUser = async (filter) => {
   const user = await User.where(filter).findOne();
-  user.rank = await this.FindRank(user._id);
+  if (user) user.rank = await this.FindRank(user._id);
   return user;
 };
 
@@ -26,4 +28,11 @@ exports.UpdateInfo = async (info) => {
   user.name = info.name;
   user.uid = info.uid;
   await user.save();
+};
+
+exports.AllRank = async () => {
+  const users = await User.find({ integral: { $ne: 0 } })
+    .sort({ integral: -1, created: 1 })
+    .select("nick integral uid race");
+  return users;
 };

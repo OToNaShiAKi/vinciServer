@@ -1,5 +1,5 @@
 module.exports = {
-  init: ({ code = 500, message = "服务器运行错误" }) => ({
+  init: ({ code = 1000, message = "服务器运行错误" }) => ({
     status: code,
     message,
   }),
@@ -10,5 +10,13 @@ module.exports = {
   InfoWrong: {
     status: 1002,
     message: "手机或学号已被占用",
+  },
+  RankWrong: {
+    status: 1003,
+    message: "获取排行榜失败",
+  },
+  NoRank: {
+    status: 1004,
+    message: "排行榜尚无数据",
   },
 };
