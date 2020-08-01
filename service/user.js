@@ -5,7 +5,7 @@ exports.FindRank = async (_id) => {
     .sort({ integral: -1, created: 1 })
     .select("_id");
   for (let index in users) {
-    if (users[index]._id.toString() == _id) return index + 1;
+    if (users[index]._id.toString() == _id) return Number(index) + 1;
   }
 };
 
@@ -17,7 +17,10 @@ exports.FindUser = async (filter) => {
 
 exports.CreateUser = async (nick, password) => {
   const user = new User({ nick, password });
+  console.log(user)
+
   const result = await user.save();
+
   result.rank = await this.FindRank(result._id);
   return result;
 };

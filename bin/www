@@ -20,8 +20,8 @@ const port = normalizePort(process.env.PORT || "9090");
  */
 
 const server = http.createServer(app.callback());
-/* const io = require("socket.io")(server);
-require("./../controller/game")(io); */
+const io = require("socket.io")(server);
+require("./../controller/game")(io);
 
 /**
  * Listen on provided port, on all network interfaces.

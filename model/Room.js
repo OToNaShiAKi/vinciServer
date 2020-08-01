@@ -1,14 +1,9 @@
 const { RoundTotalPlayer } = require("./../config/game");
 
-const Turn = 1;
-const Wait = -1;
-const Disconnect = 0;
-const Done = 2;
-
 class Room {
-  constructor(_id, players) {
+  constructor({ _id }) {
     this._id = _id;
-    this.players = players;
+    this.players = [];
   }
 
   PlayerIn(player) {

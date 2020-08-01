@@ -16,22 +16,25 @@ class Main {
       const room = this.rooms[key];
       if (room.length < RoundTotalPlayer) {
         room.PlayerIn(socket);
+        socket.join(room._id, () => {
+          this.io.to(room._id).emit("player", room.length);
+        })
         return;
       }
     }
 
-    const room = this.CreateRoom();
-    this.rooms[room._id] = room;
-    room.PlayerIn(socket);
+    await this.CreateRoom();
+    this.JoinRoom(socket)
   }
 
   CreateRoom() {
     const round = Round.CreateRound();
     const room = new Room(round);
-    return room;
+    this.rooms[room._id] = room;
   }
 
   async Connect(socket) {
+    // socket.id是框架自动加的
     this.sockets[socket.id] = socket;
 
     const _id = socket.handshake.query._id;
