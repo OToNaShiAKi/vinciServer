@@ -2,10 +2,11 @@ const User = require("./../service/user");
 const Round = require("./../service/round");
 
 const Room = require("./Room");
-const { RoundTotalPlayer } = require("./../config/game");
+const { RoundTotalPlayer, Waiting } = require("./../config/game");
 
 class Main {
   constructor(io) {
+    this.io = io;
     this.rooms = {};
     this.sockets = {};
     Room.io = io;
@@ -14,21 +15,27 @@ class Main {
   JoinRoom(socket) {
     for (let key in this.rooms) {
       const room = this.rooms[key];
-      if (room.length < RoundTotalPlayer) {
+      if (room.players.length < RoundTotalPlayer && room.status === Waiting) {
         room.PlayerIn(socket);
+        
         return;
       }
     }
 
-    const room = this.CreateRoom();
+    const room = await this.CreateRoom();
     this.rooms[room._id] = room;
-    room.PlayerIn(socket);
+    this.JoinRoom(socket)
   }
 
-  CreateRoom() {
+  async CreateRoom() {
     const round = Round.CreateRound();
-    const room = new Room(round);
-    return room;
+    try {
+      const room = await new Room(round);
+      return room;
+    } catch (error) {
+      console.log(error);
+      return await this.CreateRoom();
+    }
   }
 
   async Connect(socket) {
@@ -38,6 +45,10 @@ class Main {
     socket.player = await User.FindUser({ _id });
 
     this.JoinRoom(socket);
+  }
+
+  InirSocketOn() {
+    
   }
 }
 

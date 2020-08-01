@@ -21,6 +21,7 @@
     "koa-redis": "^4.0.1",
     "koa-router": "^7.4.0",
     "koa-views": "^6.2.0",
+    "lodash": "^4.17.19",
     "mongoose": "^5.9.25",
     "pug": "^2.0.3",
     "socket.io": "^2.3.0"

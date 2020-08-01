@@ -1,9 +1,16 @@
 const User = require("./../model/User");
 
+const Rank = {
+  integral: -1,
+  "race.first": -1,
+  "race.second": -1,
+  "race.third": -1,
+  "race.forth": -1,
+  created: 1,
+};
+
 exports.FindRank = async (_id) => {
-  const users = await User.find()
-    .sort({ integral: -1, created: 1 })
-    .select("_id");
+  const users = await User.find().sort(Rank).select("_id");
   for (let index in users) {
     if (users[index]._id.toString() == _id) return index + 1;
   }
@@ -32,7 +39,7 @@ exports.UpdateInfo = async (info) => {
 
 exports.AllRank = async () => {
   const users = await User.find({ integral: { $ne: 0 } })
-    .sort({ integral: -1, created: 1 })
+    .sort(Rank)
     .select("nick integral uid race");
   return users;
 };
