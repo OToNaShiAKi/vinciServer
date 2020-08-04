@@ -1,12 +1,4 @@
-const {
-  RoundTotalPlayer,
-  Cards,
-  Waiting,
-  Playing,
-} = require("./../config/game");
-
-const Round = require("./../service/round");
-const Main = require("./Vinci");
+const { RoundTotalPlayer, Cards, RoomStatus } = require("./../config/game");
 
 const { shuffle } = require("lodash");
 
@@ -14,8 +6,10 @@ class Room {
   constructor(round) {
     this.round = round;
     this._id = round._id;
+
     this.turn = null;
-    this.status = Waiting;
+    this.status = RoomStatus.Waiting;
+
     this.sockets = [];
 
     this.Cards = shuffle(JSON.parse(JSON.stringify(Cards)));
@@ -23,45 +17,70 @@ class Room {
 
   PlayerIn(socket) {
     this.sockets.push(socket);
+    socket.cards = [];
     socket.room = this._id;
 
     socket.join(this._id, () => {
       Room.io.to(this._id).emit("player", this.sockets.length);
     });
 
+    this.InitOn(socket);
+
     if (this.sockets.length === RoundTotalPlayer) {
       this.start();
     }
   }
 
+  InitOn(socket) {
+    socket.on("ChoseCard", ({ _id, cards }) => {
+      if (_id !== this.turn) return;
+    });
+  }
+
   start() {
-    Room.io.to(this._id).emit("start");
-
+    let players = [];
     for (let player of this.sockets) {
-      player.cards = [];
-      for (let i = 0; i < 3; i++) {
-        const card = this.ChoseCard();
-        card.belong = player.player._id;
-        player.cards.push(card);
-      }
-      Room.io.to(this._id).emit("card", player.cards);
+      players.push(player.player);
+      this.GiveCard(player);
     }
-    this.status = Playing;
-    this.ChangePlayer(0);
+    Room.io.to(this._id).emit("start", players);
+    this.status = RoomStatus.Playing;
+
+    this.ChangePlayer(0, 3);
   }
 
-  ChangePlayer(index) {
+  ChangePlayer(index, chose = 1) {
     const socket = this.sockets[index];
-
-    this.turn = socket.id;
+    this.turn = socket.player;
+    Room.io.to(this._id).emit("turn", {
+      play: this.turn,
+      chose,
+    });
+    this.GiveCard(socket);
   }
 
-  ChoseCard() {
-    return this.Cards.pop();
+  ChoseCard(index) {
+    const card = this.Cards[index];
+    card.belong = this.turn;
+    this.Cards.splice(index, 1);
+    return card;
   }
 
-  over() {
-    Room.io.to(this._id).emit("over");
+  GiveCard(socket) {
+    let all = this.Cards.map((card) => ({ color: card.color }));
+    let other = {};
+    for (let player of this.sockets) {
+      if (player.id !== socket.id) {
+        other[player.player._id] = player.cards.map((card) => ({
+          color: card.color,
+        }));
+      }
+    }
+    socket.emit("cards", {
+      all,
+      other,
+      mine: socket.cards,
+    });
   }
 }
 

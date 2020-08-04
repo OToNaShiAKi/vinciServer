@@ -12,7 +12,7 @@ const Rank = {
 exports.FindRank = async (_id) => {
   const users = await User.find().sort(Rank).select("_id");
   for (let index in users) {
-    if (users[index]._id.toString() == _id) return index + 1;
+    if (users[index]._id.toString() == _id) return Number(index) + 1;
   }
 };
 

@@ -19,4 +19,8 @@ module.exports = {
     status: 1004,
     message: "排行榜尚无数据",
   },
+  AlreadyMatch: {
+    status: 1005,
+    message: "请勿重复连接",
+  },
 };

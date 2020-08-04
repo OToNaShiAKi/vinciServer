@@ -12,6 +12,6 @@ const RoundSchema = new Schema({
   end: Date,
 });
 
-const Round = model("user", RoundSchema);
+const Round = model("round", RoundSchema);
 
 module.exports = Round;

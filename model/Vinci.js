@@ -1,8 +1,8 @@
 const User = require("./../service/user");
-const Round = require("./../service/round");
+const Round = require("./Round");
 
 const Room = require("./Room");
-const { RoundTotalPlayer, Waiting } = require("./../config/game");
+const { RoundTotalPlayer, RoomStatus } = require("./../config/game");
 
 class Main {
   constructor(io) {
@@ -15,40 +15,43 @@ class Main {
   JoinRoom(socket) {
     for (let key in this.rooms) {
       const room = this.rooms[key];
-      if (room.players.length < RoundTotalPlayer && room.status === Waiting) {
+      if (
+        room.sockets.length < RoundTotalPlayer &&
+        room.status === RoomStatus.Waiting
+      ) {
         room.PlayerIn(socket);
-        
         return;
       }
     }
 
-    const room = await this.CreateRoom();
-    this.rooms[room._id] = room;
-    this.JoinRoom(socket)
+    this.CreateRoom();
+    this.JoinRoom(socket);
   }
 
-  async CreateRoom() {
-    const round = Round.CreateRound();
+  CreateRoom() {
     try {
-      const room = await new Room(round);
-      return room;
+      const round = new Round();
+      const room = new Room(round);
+      this.rooms[room._id] = room;
     } catch (error) {
       console.log(error);
-      return await this.CreateRoom();
+      return this.CreateRoom();
     }
   }
 
   async Connect(socket) {
-    this.sockets[socket.id] = socket;
-
     const _id = socket.handshake.query._id;
-    socket.player = await User.FindUser({ _id });
+    this.sockets[_id] = socket;
+
+    const user = await User.FindUser({ _id });
+    socket.player = {
+      nick: user.nick,
+      integral: user.integral,
+      race: user.race,
+      _id: user._id,
+    };
 
     this.JoinRoom(socket);
-  }
-
-  InirSocketOn() {
-    
   }
 }
 
