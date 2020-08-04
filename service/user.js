@@ -24,7 +24,10 @@ exports.FindUser = async (filter) => {
 
 exports.CreateUser = async (nick, password) => {
   const user = new User({ nick, password });
+  console.log(user)
+
   const result = await user.save();
+
   result.rank = await this.FindRank(result._id);
   return result;
 };

@@ -20,6 +20,9 @@ class Main {
         room.status === RoomStatus.Waiting
       ) {
         room.PlayerIn(socket);
+        socket.join(room._id, () => {
+          this.io.to(room._id).emit("player", room.length);
+        });
         return;
       }
     }
